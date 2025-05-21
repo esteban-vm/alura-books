@@ -10,6 +10,6 @@ public record Book(
         String title,
         List<Author> authors,
         List<String> languages,
-        @JsonAlias("download_count") double downloads
+        @JsonAlias("download_count") int downloads
 ) {
 }
