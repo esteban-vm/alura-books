@@ -19,24 +19,31 @@ public class Main {
     private final Scanner scanner = new Scanner(System.in);
 
     public void showMenu() {
+        getTopBooks();
+        searchBook();
+    }
+
+    private void getTopBooks() {
+        System.out.println("\n\uD83D\uDCDA Los 10 libros más descargados:");
+
         var json = consumer.getDataFromAPI(URL);
         var data = conversor.getData(json, APIResponse.class);
 
-        System.out.println("\n\uD83D\uDCDA Los 10 libros más descargados:");
-        
         data.books()
                 .stream()
                 .sorted(Comparator.comparing(Book::downloads).reversed())
                 .limit(10)
                 .map(book -> "\uD83D\uDCD6 " + book.title().toUpperCase())
                 .forEach(System.out::println);
+    }
 
+    private void searchBook() {
         System.out.println("\n\uD83D\uDD0D Ingrese el título del libro que desea buscar:");
+
         var bookTitle = scanner.nextLine();
         var encodedTitle = URLEncoder.encode(bookTitle, Charset.defaultCharset());
-
-        json = consumer.getDataFromAPI(URL + "?search=" + encodedTitle);
-        data = conversor.getData(json, APIResponse.class);
+        var json = consumer.getDataFromAPI(URL + "?search=" + encodedTitle);
+        var data = conversor.getData(json, APIResponse.class);
 
         Optional<Book> searchedBook = data
                 .books()
@@ -49,7 +56,6 @@ public class Main {
 
         if (searchedBook.isPresent()) {
             System.out.println("\uD83D\uDE3A Libro encontrado");
-
             Book book = searchedBook.get();
 
             Optional<String> author = book.authors()
