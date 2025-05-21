@@ -9,14 +9,31 @@ import com.aluracursos.books.services.DataConversor;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.Comparator;
+import java.util.DoubleSummaryStatistics;
 import java.util.Optional;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 public class Main {
     private static final String URL = "https://gutendex.com/books/";
     private final APIConsumer consumer = new APIConsumer();
     private final DataConversor conversor = new DataConversor();
     private final Scanner scanner = new Scanner(System.in);
+
+    private static void getStats(APIResponse data) {
+        System.out.println("\n\uD83D\uDCC8 Estadísticas de libros:");
+
+        DoubleSummaryStatistics statistics = data
+                .books()
+                .stream()
+                .filter(book -> book.downloads() > 0)
+                .collect(Collectors.summarizingDouble(Book::downloads));
+
+        System.out.println("Cantidad promedio de descargas: " + statistics.getAverage());
+        System.out.println("Cantidad máxima de descargas: " + statistics.getMax());
+        System.out.println("Cantidad mínima de descargas: " + statistics.getMin());
+        System.out.println("Cantidad de registros evaluados: " + statistics.getCount());
+    }
 
     public void showMenu() {
         getTopBooks();
@@ -35,6 +52,8 @@ public class Main {
                 .limit(10)
                 .map(book -> "\uD83D\uDCD6 " + book.title().toUpperCase())
                 .forEach(System.out::println);
+
+        getStats(data);
     }
 
     private void searchBook() {
